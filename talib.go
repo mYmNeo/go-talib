@@ -30,6 +30,7 @@ const (
 	KAMA
 	MAMA
 	T3MA
+	SMACN
 )
 
 /* Overlap Studies */
@@ -487,6 +488,8 @@ func Ma(inReal []float64, inTimePeriod int, inMAType MaType) []float64 {
 		outReal, _ = Mama(inReal, 0.5, 0.05)
 	case T3MA:
 		outReal = T3(inReal, inTimePeriod, 0.7)
+	case SMACN:
+		outReal = SmaCN(inReal, inTimePeriod)
 	}
 	return outReal
 }
@@ -5986,4 +5989,24 @@ func GroupCandles(highs []float64, opens []float64, closes []float64, lows []flo
 		k++
 	}
 	return groupedHighs, groupedOpens, groupedCloses, groupedLows, nil
+}
+
+// SmaCN - Simple Moving Average for CN
+func SmaCN(inReal []float64, inTimePeriod int) []float64 {
+	outReal := make([]float64, len(inReal))
+
+	outReal[0] = inReal[0] / float64(inTimePeriod)
+	if len(inReal) == 1 {
+		return outReal
+	}
+
+	outIdx := 1
+	weight := inTimePeriod - 1
+	for ok := true; ok; {
+		outReal[outIdx] = (inReal[outIdx] + outReal[outIdx-1]*float64(weight)) / float64(inTimePeriod)
+		outIdx++
+		ok = outIdx < len(outReal)
+	}
+
+	return outReal
 }
